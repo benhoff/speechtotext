@@ -43,7 +43,3 @@ while True:
     # NOTE: this should block right here
     reply = communication_socket.recv_multipart()
     print(reply)
-
-
-
-

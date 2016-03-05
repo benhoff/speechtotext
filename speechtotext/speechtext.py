@@ -34,8 +34,9 @@ class SpeechText:
         f.setsampwidth(sample_width)
         f.setframerate(rate)
         while True:
-            data = None
             data = self.audio_socket.recv_multipart()
+            rate = int(data.pop(0))
+            sample_width = int(data.pop(0))
 
             stream_data = b"".join(data)
             f.writeframes(stream_data)
@@ -46,5 +47,14 @@ class SpeechText:
             print('sample width', sample_width)
             audio_data = sr.AudioData(stream_data, rate, sample_width)
 
-            msg = self.recognizer.recognize_sphinx(audio_data)
+            msg = self.recognizer.recognize_ibm(audio_data,
+                                                os.getenv('IBM_USERNAME'),
+                                                os.getenv('IBM_PASSWORD'),
+                                                show_all=True)
+
+            print(msg)
+
+            msg = self.recognizer.recognize_google(audio_data,
+                                                   show_all =True)
+
             print(msg)
