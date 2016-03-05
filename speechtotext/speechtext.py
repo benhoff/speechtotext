@@ -1,4 +1,5 @@
 import wave
+import os
 from os import path
 
 import zmq
@@ -30,23 +31,20 @@ class SpeechText:
         f = wave.open('audio.wav', mode='wb')
         f.setnchannels(2)
         sample_width = pa.get_sample_size(pyaudio.paInt16)
-        print('sample width', sample_width)
         f.setsampwidth(sample_width)
         f.setframerate(rate)
         while True:
-            data = []
-            for _ in range(215):
-                frame = self.audio_socket.recv()
-                f.writeframes(frame)
-                data.append(frame)
-            # TODO
+            data = None
+            data = self.audio_socket.recv_multipart()
+
             stream_data = b"".join(data)
+            f.writeframes(stream_data)
+            # TODO
             # NOTE: need to log the sample rate and format that are 
             # coming in for each stream.
             f.close()
-            audio_data = sr.AudioData(stream_data, rate, 2)
+            print('sample width', sample_width)
+            audio_data = sr.AudioData(stream_data, rate, sample_width)
 
             msg = self.recognizer.recognize_sphinx(audio_data)
             print(msg)
-
-

@@ -31,14 +31,13 @@ while True:
     communication_socket.send_multipart(frame)
     response = communication_socket.recv_multipart()
     driver_socket_id = response[0]
-    print(driver_socket_id)
 
     command_type = b'driver'
     command = b'record'
 
     frame = (command_type, command, driver_socket_id)
 
-    # send record command!
+    print('send record command!')
     communication_socket.send_multipart(frame)
     print('sent record command')
     # NOTE: this should block right here
