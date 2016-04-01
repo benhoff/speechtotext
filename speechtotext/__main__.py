@@ -11,35 +11,42 @@ from speechtext import SpeechText
 
 
 
-def main(audio_address='tcp://*:5555',
-         text_address='tcp://*:6003'):
-
-    speech_text = SpeechText(audio_address, text_address)
-
+def main(*args, **kwargs):
+    """
+    args:
+        context
+    kwargs:
+        audio_address
+        text_address
+    """
+    speech_text = SpeechText(*args, **kwargs)
+    """
     thread = Thread(target=microphone.main)
     thread.daemon = True
     thread.start()
-
     """
     microphone_dir = path.dirname(microphone.__file__)
     main_microphone_file = path.join(microphone_dir, '__main__.py')
 
-    microphone_process = subprocess.Popen(sys.executable,
-                                          main_microphone_file)
-    """
+    microphone_process = subprocess.Popen((sys.executable,
+                                           main_microphone_file))
 
     speech_text.run()
 
 
-if __name__ == '__main__':
+def _get_kwargs():
     parser = argparse.ArgumentParser()
     parser.add_argument('--audio_address',
                         action='store',
-                        default='tcp://*:5655')
+                        default='tcp://127.0.0.1:5555')
 
     parser.add_argument('--text_address',
                         action='store',
-                        default='tcp://*:6003')
+                        default='tcp://127.0.0.1:6003')
 
-    args = parser.parse_args()
-    main(args.audio_address, args.text_address)
+    return vars(parser.parse_args())
+
+
+if __name__ == '__main__':
+    kwargs = _get_kwargs()
+    main(**kwargs)
