@@ -1,14 +1,7 @@
-import sys
 import argparse
-import subprocess
-import microphone
-import atexit
 
-from os import path
-from threading import Thread
-
-from speechtext import SpeechText
-
+from speechtotext.speechtext import SpeechText
+from speechtotext.messaging import Messaging
 
 
 def main(*args, **kwargs):
@@ -19,19 +12,9 @@ def main(*args, **kwargs):
         audio_address
         text_address
     """
-    speech_text = SpeechText(*args, **kwargs)
-    """
-    thread = Thread(target=microphone.main)
-    thread.daemon = True
-    thread.start()
-    """
-    microphone_dir = path.dirname(microphone.__file__)
-    main_microphone_file = path.join(microphone_dir, '__main__.py')
-
-    microphone_process = subprocess.Popen((sys.executable,
-                                           main_microphone_file))
-
-    speech_text.run()
+    speech_text = SpeechText()
+    messaging = Messaging(speech_text, *args, **kwargs)
+    messaging.run()
 
 
 def _get_kwargs():

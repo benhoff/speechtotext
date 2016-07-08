@@ -10,7 +10,7 @@ with open(os.path.join(directory, 'README.rst')) as f:
 
 setup(
     name="speechtotext",
-    version='0.0.1',
+    version='0.0.2',
     description='Text to Speech for python',
     # long_description=long_description,
     url='https://github.com/benhoff/speechtotext',
@@ -27,13 +27,14 @@ setup(
     keywords='sound capture to text',
     author='Ben Hoff',
     author_email='beohoff@gmail.com',
-
+    entry_points={'vexbot.adapters': ['speechtotext=speechtotext.__main__'],},
     packages= find_packages(), # exclude=['docs', 'tests']
     install_requires=[
         'pluginmanager',
         'PyAudio',
         'pyzmq',
-        'microphone',
+        'SpeechRecognition',
+        'vexmessage',
         ],
 
     extras_require={

@@ -1,7 +1,10 @@
 import wave
+import math
 
 import zmq
 import pyaudio
+
+from vexmessage import create_vex_message, decode_vex_message
 
 
 class Messaging:
@@ -14,27 +17,30 @@ class Messaging:
         self.audio_socket.setsockopt_unicode(zmq.SUBSCRIBE, '')
 
         self.text_socket = context.socket(zmq.PUB)
-        self.text_socket.bind(text_address)
+        self.text_socket.connect(text_address)
+        self._pyaudio = pyaudio.PyAudio()
+
+    def __del__(self):
+        self._pyaudio.terminate()
 
     def run(self):
-        pa = pyaudio.PyAudio()
-        info = pa.get_default_input_device_info()
-        rate = int(info['defaultSampleRate'])
-
-        f = wave.open('audio.wav', mode='wb')
-        f.setnchannels(2)
-        sample_width = pa.get_sample_size(pyaudio.paInt16)
-        f.setsampwidth(sample_width)
-        f.setframerate(rate)
         while True:
-            data = self.audio_socket.recv_multipart()
-            rate = int(data.pop(0).decode('ascii'))
-            sample_width = int.from_bytes(data.pop(0), 'big')
+
+            frame = self.audio_socket.recv_multipart()
+            message = decode_vex_message(frame)
+            if message.type == 'CMD' and message.get('command') == 'record':
+
+                sample_rate = message.contents['sample_rate']
+                sample_width = message.contents['sample_width']
+                number_channels = message.contents['number_channels']
+                data = message.contents['audio']
 
             stream_data = b"".join(data)
-            f.writeframes(stream_data)
-            # TODO
-            # NOTE: need to log the sample rate and format that are 
-            # coming in for each stream.
-            f.close()
-            self.speechtotext._get_msg(stream_data, rate, sample_width)
+            msg = self.speechtotext.get_msg(stream_data, sample_rate, sample_width, message)
+            if msg:
+                response = create_vex_message('', 'speechtotext', 'MSG', message=msg)
+                print(response)
+
+                self.messaging.text_socket.send_multipart(response)
+            else:
+                pass
