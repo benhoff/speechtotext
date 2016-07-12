@@ -1,6 +1,5 @@
 # import uuid
 import wave
-import logging
 
 import zmq
 
@@ -28,16 +27,12 @@ class Messaging:
                 sample_width = message.contents['sample_width']
                 number_channels = message.contents['number_channels']
                 stream_data = message.contents['audio']
-                logging.error(sample_rate)
-                logging.error(sample_width)
-                logging.error(number_channels)
 
                 msg = self.speechtotext.get_msg(stream_data,
                                                 sample_rate,
                                                 sample_width,
                                                 number_channels)
 
-                logging.error(msg)
 
                 """
                 filename = '{}.wav'.format(uuid.uuid4())
